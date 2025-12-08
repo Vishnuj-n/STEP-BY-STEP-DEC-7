@@ -1,7 +1,7 @@
 # 📊 PDF Summary Analysis: Full Text vs Limited Context
 
 ## Current Implementation
-- Summary uses **full document text** with Groq (`call_gemini`), so users already get complete coverage.
+- Summary uses **full document text** with Groq (`call_llm`), so users already get complete coverage.
 - Topics use AI on the first ~8k chars with a heuristic fallback (fast).
 - Scheduler uses the first ~8k chars for speed; flashcards/quiz/chat use topic-aware slices via ONNX.
 

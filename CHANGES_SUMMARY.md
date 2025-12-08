@@ -2,7 +2,7 @@
 
 ## 1) Groq-Powered AI Pipeline
 - Swapped Gemini references for Groq (`groq` client, default model `openai/gpt-oss-120b`).
-- `call_gemini`/`call_gemini_structured` now route to Groq for summaries, flashcards, scheduler, quiz, mnemonics, and tutor.
+- `call_llm`/`call_llm_structured` now route to Groq for summaries, flashcards, scheduler, quiz, mnemonics, and tutor.
 
 ## 2) Topic-Aware Extraction via Local ONNX
 - `utils/text_extraction.py` + `utils/onnx_embedder.py` use `onnx/model_int8.onnx` (nomic-embed-text-v1.5) to pull topic-relevant slices.

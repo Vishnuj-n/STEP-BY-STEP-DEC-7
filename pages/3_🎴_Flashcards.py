@@ -3,8 +3,8 @@ Flashcards Page - Study with topic-based flashcards
 """
 import streamlit as st
 import json
-from utils.db import Database
-from utils.helpers import load_prompt, call_gemini, parse_json_response
+from utils.db import get_database
+from utils.helpers import load_prompt, call_llm, parse_json_response
 from utils.text_extraction import get_topic_text
 from utils.sidebar_utils import show_sidebar_on_all_pages
 
@@ -13,7 +13,7 @@ st.set_page_config(page_title="Flashcards", page_icon="🎴", layout="wide")
 # Show common sidebar on all pages
 show_sidebar_on_all_pages()
 
-db = Database()
+db = get_database()
 
 # Initialize session state
 if 'current_card_index' not in st.session_state:
@@ -123,7 +123,7 @@ def generate_flashcards_ui(notebook, db):
                     prompt_config['user_instruction'] = original_instruction.replace('5 flashcards', f'{num_flashcards} flashcards')
                     
                     # Generate flashcards
-                    response = call_gemini(prompt_config, topic_specific_text, topic=selected_topic)
+                    response = call_llm(prompt_config, topic_specific_text, topic=selected_topic)
                     
                     # Parse JSON response
                     flashcards_data = parse_json_response(response)

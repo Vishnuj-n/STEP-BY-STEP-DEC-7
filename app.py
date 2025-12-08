@@ -5,8 +5,8 @@ Main application entry point
 import streamlit as st
 import base64
 import json
-from utils.db import Database
-from utils.helpers import extract_text_from_pdf, load_prompt, call_gemini
+from utils.db import get_database
+from utils.helpers import extract_text_from_pdf, load_prompt, call_llm
 from utils.sidebar_utils import display_todays_tasks_sidebar
 from utils.text_extraction import split_into_sentences, compute_embeddings
 
@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 # Initialize database
-db = Database()
+db = get_database()
 
 # Custom CSS
 st.markdown("""
@@ -152,7 +152,7 @@ def display_upload_section():
                 # Generate summary and topics using Gemini
                 st.info("🤖 Generating summary and extracting key topics...")
                 prompt_config = load_prompt('summary_prompt.json')
-                summary_response = call_gemini(prompt_config, text_content)  # Use full text for complete summary
+                summary_response = call_llm(prompt_config, text_content)  # Use full text for complete summary
                 
                 # Parse the summary (assuming it returns summary and topics)
                 # For now, we'll store the whole response as summary
@@ -189,7 +189,7 @@ def extract_topics_from_text(text):
     # Try AI-based extraction first
     try:
         prompt_config = load_prompt('topics_prompt.json')
-        response = call_gemini(prompt_config, text[:8000])
+        response = call_llm(prompt_config, text[:8000])
         
         # Parse JSON response
         topics = json.loads(response.strip())

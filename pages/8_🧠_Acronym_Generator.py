@@ -2,8 +2,8 @@
 Memory Aid Generator Page - Generates various mnemonic devices like acronyms, songs, and phrases.
 """
 import streamlit as st
-from utils.db import Database
-from utils.helpers import load_prompt, call_gemini
+from utils.db import get_database
+from utils.helpers import load_prompt, call_llm
 from utils.text_extraction import get_topic_text
 from utils.sidebar_utils import show_sidebar_on_all_pages
 
@@ -11,7 +11,7 @@ st.set_page_config(page_title="Memory Generator", page_icon="🧠", layout="wide
 
 show_sidebar_on_all_pages()
 
-db = Database()
+db = get_database()
 
 # --- Configuration: All Available Generator Types and their corresponding prompt file names ---
 GENERATOR_OPTIONS = {
@@ -76,7 +76,7 @@ else:
                     prompt_config = load_prompt(prompt_filename) 
 
                     # 2. Call the single, unified model function
-                    response = call_gemini(
+                    response = call_llm(
                         prompt_config, 
                         context_text=context_text, # PDF content (or empty string)
                         target_text=concept_text   # Topic name or Custom text

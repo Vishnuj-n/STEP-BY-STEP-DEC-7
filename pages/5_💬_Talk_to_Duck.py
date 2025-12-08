@@ -6,7 +6,7 @@ import streamlit as st
 import json
 import io
 import os
-from utils.db import Database
+from utils.db import get_database
 from utils.sidebar_utils import show_sidebar_on_all_pages
 from utils.text_extraction import get_topic_text
 from utils.helpers import client  # Importing the Groq client from helpers
@@ -26,7 +26,7 @@ st.set_page_config(page_title="Talk to Doc", page_icon="💬", layout="wide")
 # Show common sidebar on all pages
 show_sidebar_on_all_pages()
 
-db = Database()
+db = get_database()
 
 # --- Helper Functions ---
 

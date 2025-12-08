@@ -7,9 +7,9 @@ import time
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List
-from utils.db import Database
+from utils.db import get_database
 from utils.sidebar_utils import show_sidebar_on_all_pages
-from utils.helpers import call_gemini_structured
+from utils.helpers import call_llm_structured
 from utils.text_extraction import get_topic_text
 
 st.set_page_config(page_title="Quiz", page_icon="📝", layout="wide")
@@ -17,7 +17,7 @@ st.set_page_config(page_title="Quiz", page_icon="📝", layout="wide")
 # Show common sidebar on all pages
 show_sidebar_on_all_pages()
 
-db = Database()
+db = get_database()
 
 # Define Pydantic schemas for structured output
 class QuizQuestion(BaseModel):
@@ -109,7 +109,7 @@ Text content:
 Generate {num_questions} questions now."""
                             
                             # Call Groq with structured output (Pydantic schema)
-                            quiz_data = call_gemini_structured(prompt, QuizData, model_name="openai/gpt-oss-120b")
+                            quiz_data = call_llm_structured(prompt, QuizData, model_name="openai/gpt-oss-120b")
                             
                             # Convert Pydantic model to dict for storage
                             quiz_dict = quiz_data.model_dump()

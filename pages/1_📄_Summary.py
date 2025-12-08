@@ -2,7 +2,7 @@
 Summary Page - Display AI-generated summary and key topics
 """
 import streamlit as st
-from utils.db import Database
+from utils.db import get_database
 from utils.sidebar_utils import show_sidebar_on_all_pages
 
 st.set_page_config(page_title="Summary", page_icon="📄", layout="wide")
@@ -10,7 +10,7 @@ st.set_page_config(page_title="Summary", page_icon="📄", layout="wide")
 # Show common sidebar on all pages
 show_sidebar_on_all_pages()
 
-db = Database()
+db = get_database()
 
 st.title("📄 Document Summary")
 

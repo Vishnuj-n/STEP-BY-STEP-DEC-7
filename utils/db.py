@@ -3,6 +3,7 @@ Database utilities for Mind Palace - MongoDB with optimized nested schema.
 Single notebook document contains all related data: schedule, flashcards, quizzes, acronyms, progress.
 """
 
+import streamlit as st
 from pymongo import MongoClient
 from datetime import datetime
 from bson.objectid import ObjectId
@@ -10,6 +11,12 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+@st.cache_resource
+def get_database():
+    """Get or create cached database connection. Only one connection per Streamlit session."""
+    return Database()
 
 
 class Database:

@@ -3,6 +3,7 @@ ONNX-based embedding module for nomic-embed-text-v1.5.
 Uses local ONNX model (./onxx/model_int8.onnx) instead of PyTorch.
 """
 
+import streamlit as st
 import onnxruntime as ort
 from transformers import AutoTokenizer
 import numpy as np
@@ -139,15 +140,10 @@ class OnnxEmbedder:
         return self.embed(documents, prefix="search_document:")
 
 
-# Global embedder instance
-_embedder_instance = None
-
+@st.cache_resource
 def get_embedder():
-    """Get or create global embedder instance."""
-    global _embedder_instance
-    if _embedder_instance is None:
-        _embedder_instance = OnnxEmbedder()
-    return _embedder_instance
+    """Get or create cached embedder instance. Ensures model is loaded only once."""
+    return OnnxEmbedder()
 
 def embed_texts(texts, prefix="search_document:"):
     """

@@ -34,7 +34,7 @@ Single collection: **`notebooks`**
 User uploads PDF
   → extract text (PyPDF2)
   → Base64 encode PDF for storage
-  → summary = call_gemini(summary_prompt, full text)
+  → summary = call_llm(summary_prompt, full text)
   → topics = AI (topics_prompt on first ~8k chars) with heuristic fallback
   → save notebook in MongoDB
 ```
@@ -63,7 +63,7 @@ groq.chat.completions.create(model=GROQ_MODELS or GROQ_MODEL)
 parse text or JSON (parse_json_response or Pydantic validation)
 ```
 - Default model: `openai/gpt-oss-120b` (configurable via `.env`).
-- Structured quizzes use `call_gemini_structured` with JSON schema enforcement.
+- Structured quizzes use `call_llm_structured` with JSON schema enforcement.
 
 ## 🧭 Topic-Aware Extraction (Local ONNX)
 - `utils/text_extraction.py` uses ONNX `nomic-embed-text-v1.5` (int8) via `onnxruntime`.

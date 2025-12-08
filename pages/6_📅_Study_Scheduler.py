@@ -3,8 +3,8 @@ Study Scheduler Page - Generate personalized study schedules
 """
 import streamlit as st
 import json
-from utils.db import Database
-from utils.helpers import load_prompt, call_gemini, parse_json_response
+from utils.db import get_database
+from utils.helpers import load_prompt, call_llm, parse_json_response
 from utils.sidebar_utils import show_sidebar_on_all_pages
 
 st.set_page_config(page_title="Study Scheduler", page_icon="📅", layout="wide")
@@ -12,7 +12,7 @@ st.set_page_config(page_title="Study Scheduler", page_icon="📅", layout="wide"
 # Show common sidebar on all pages
 show_sidebar_on_all_pages()
 
-db = Database()
+db = get_database()
 
 st.title("📅 Study Scheduler")
 
@@ -82,7 +82,7 @@ else:
                         prompt_config = load_prompt('scheduler_prompt.json')
                         
                         # Generate schedule
-                        response = call_gemini(prompt_config, text_content[:8000], days=days)
+                        response = call_llm(prompt_config, text_content[:8000], days=days)
                         
                         # Parse JSON response
                         schedule = parse_json_response(response)
@@ -166,7 +166,7 @@ Break the content into manageable daily tasks. Return the result as a JSON array
 """
                                     
                                     # Generate new schedule
-                                    response = call_gemini(
+                                    response = call_llm(
                                         prompt_config, 
                                         reschedule_prompt
                                     )

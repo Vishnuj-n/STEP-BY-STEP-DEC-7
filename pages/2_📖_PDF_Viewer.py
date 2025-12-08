@@ -3,7 +3,7 @@ PDF Viewer Page - Display the uploaded PDF document
 """
 import streamlit as st
 import base64
-from utils.db import Database
+from utils.db import get_database
 from utils.sidebar_utils import show_sidebar_on_all_pages
 
 st.set_page_config(page_title="PDF Viewer", page_icon="📖", layout="wide")
@@ -11,7 +11,7 @@ st.set_page_config(page_title="PDF Viewer", page_icon="📖", layout="wide")
 # Show common sidebar on all pages
 show_sidebar_on_all_pages()
 
-db = Database()
+db = get_database()
 
 st.title("📖 PDF Viewer")
 

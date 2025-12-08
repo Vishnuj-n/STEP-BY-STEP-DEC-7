@@ -6,7 +6,6 @@ import json
 import os
 from PyPDF2 import PdfReader
 from groq import Groq
-from google import genai
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,8 +13,14 @@ load_dotenv()
 # Groq client for LLM API calls
 client = Groq(api_key=os.getenv('GROQ_API_KEY'))
 
-# Gemini client for large content fallback
-gemini_client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+# Gemini client for large content fallback (optional, only if API key is available)
+gemini_client = None
+try:
+    from google import genai
+    if os.getenv('GEMINI_API_KEY'):
+        gemini_client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+except ImportError:
+    pass  # Gemini not installed, will use Groq only
 
 def load_prompt(prompt_file):
     """Load a prompt configuration from JSON file."""
@@ -31,7 +36,7 @@ def extract_text_from_pdf(pdf_file):
         text += page.extract_text()
     return text
 
-def call_gemini(prompt_config, context_text="", target_text="", **kwargs):
+def call_llm(prompt_config, context_text="", target_text="", **kwargs):
     """
     Call Groq API for standard text generation using OpenAI models.
     
@@ -81,23 +86,27 @@ def call_gemini(prompt_config, context_text="", target_text="", **kwargs):
     total_text = system_instruction + full_prompt if system_instruction else full_prompt
     estimated_tokens = len(total_text) // 4
     
-    # Use Gemini for large content, Groq for smaller content
-    if estimated_tokens > 7500:
+    # Use Gemini for large content if available, otherwise use Groq
+    if estimated_tokens > 7500 and gemini_client:
         # Use Gemini API for large content
-        response = gemini_client.models.generate_content(
-            model=os.getenv('GEMINI_MODEL', 'gemini-2.0-flash-exp'),
-            contents=full_prompt
-        )
-        return response.text
-    else:
-        # Use Groq API for smaller content
-        chat_completion = client.chat.completions.create(
-            messages=messages,
-            model=model_name,
-            temperature=0.7,
-            max_tokens=4096
-        )
-        return chat_completion.choices[0].message.content
+        try:
+            response = gemini_client.models.generate_content(
+                model=os.getenv('GEMINI_MODEL', 'gemini-2.0-flash-exp'),
+                contents=full_prompt
+            )
+            return response.text
+        except Exception as e:
+            # Fallback to Groq if Gemini fails
+            print(f"Gemini fallback failed: {e}. Using Groq instead.")
+    
+    # Use Groq API (default for small content or if Gemini unavailable)
+    chat_completion = client.chat.completions.create(
+        messages=messages,
+        model=model_name,
+        temperature=0.7,
+        max_tokens=4096
+    )
+    return chat_completion.choices[0].message.content
 
 def parse_json_response(response_text):
     """
@@ -144,7 +153,7 @@ def chunk_text(text, max_length=5000):
     return chunks
 
 
-def call_gemini_structured(prompt_text, schema_class, model_name="openai/gpt-oss-120b"):
+def call_llm_structured(prompt_text, schema_class, model_name="openai/gpt-oss-120b"):
     """
     Call Groq API with structured output using Pydantic schema.
     
@@ -163,17 +172,8 @@ def call_gemini_structured(prompt_text, schema_class, model_name="openai/gpt-oss
     
     Raises:
         ValueError: If response doesn't match schema
-        
-    Example:
-        from pydantic import BaseModel, ConfigDict
-        
-        class QuizData(BaseModel):
-            model_config = ConfigDict(extra='forbid')
-            questions: list[QuizQuestion]
-        
-        result = call_gemini_structured("Generate quiz...", QuizData)
     """
-    # Call Groq API with JSON schema response format
+    
     response = client.chat.completions.create(
         model=model_name,
         messages=[
@@ -198,7 +198,6 @@ def call_gemini_structured(prompt_text, schema_class, model_name="openai/gpt-oss
     )
     
     # Parse and validate response using Pydantic
-    # Following Groq's example pattern: json.loads() -> model_validate()
     try:
         raw_result = json.loads(response.choices[0].message.content or "{}")
         return schema_class.model_validate(raw_result)

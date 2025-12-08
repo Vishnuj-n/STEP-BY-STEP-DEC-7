@@ -4,13 +4,13 @@ Provides common sidebar elements like Today's Tasks.
 """
 
 import streamlit as st
-from utils.db import Database
+from utils.db import get_database
 from datetime import datetime
 
-db = Database()
 
 def display_todays_tasks_sidebar():
     """Display today's tasks in the sidebar (used on all pages)."""
+    db = get_database()  # Initialize inside function to avoid module-level Streamlit calls
     
     # Only show if a notebook is selected
     if 'current_notebook' not in st.session_state:
@@ -117,6 +117,8 @@ def show_sidebar_on_all_pages():
     Call this function at the start of every page file to show the common sidebar.
     This should be called right after st.set_page_config().
     """
+    db = get_database()  # Initialize inside function to avoid module-level Streamlit calls
+    
     with st.sidebar:
         st.header("📚 My Notebooks")
         

@@ -80,7 +80,7 @@ STEP BY STEP DEC 7/
 - **Infra:** python-dotenv, pydantic for structured quiz responses
 
 ## 📝 Prompt Management
-Prompts live in `prompts/*.json` with `system_instruction` + `user_instruction`. `helpers.call_gemini` formats placeholders (`{topic}`, `{text}`, `{target_text}`, etc.) and sends context text plus prompt to Groq.
+Prompts live in `prompts/*.json` with `system_instruction` + `user_instruction`. `helpers.call_llm` formats placeholders (`{topic}`, `{text}`, `{target_text}`, etc.) and sends context text plus prompt to Groq.
 
 ## 🎮 Gamification
 - Points: schedule tasks (10–20 pts each) + quiz scores added to total.
