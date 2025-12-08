@@ -5,6 +5,7 @@ import streamlit as st
 import json
 from utils.db import get_database
 from utils.helpers import load_prompt, call_llm, parse_json_response
+from utils.text_extraction import get_optimal_content_for_scheduling
 from utils.sidebar_utils import show_sidebar_on_all_pages
 
 st.set_page_config(page_title="Study Scheduler", page_icon="📅", layout="wide")
@@ -75,14 +76,22 @@ else:
             if st.button("📅 Generate Schedule", type="primary"):
                 with st.spinner("Creating your personalized study schedule..."):
                     try:
-                        # Get text content
+                        # Get text content and topics
                         text_content = notebook.get('text_content', '')
+                        topics = notebook.get('topics', [])
+                        
+                        # Get optimal content for scheduling (intro + topics + conclusion)
+                        schedule_content = get_optimal_content_for_scheduling(
+                            text_content, 
+                            topics, 
+                            max_length=8000
+                        )
                         
                         # Load scheduler prompt
                         prompt_config = load_prompt('scheduler_prompt.json')
                         
                         # Generate schedule
-                        response = call_llm(prompt_config, text_content[:8000], days=days)
+                        response = call_llm(prompt_config, schedule_content, days=days)
                         
                         # Parse JSON response
                         schedule = parse_json_response(response)

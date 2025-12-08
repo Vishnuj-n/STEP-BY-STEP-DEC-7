@@ -4,6 +4,7 @@ Intelligently extracts topic-relevant content from documents.
 Uses local ONNX model (./onxx/model_int8.onnx) for fast, efficient inference.
 """
 
+import re
 try:
     import numpy as np
     from .onnx_embedder import embed_texts, embed_query
@@ -11,6 +12,59 @@ try:
 except ImportError as e:
     EMBEDDINGS_AVAILABLE = False
     print(f"Warning: Embedding system not initialized: {e}")
+
+
+def get_optimal_content_for_scheduling(text, topics, max_length=8000):
+    """
+    Extract optimal content for study scheduling.
+    For large PDFs, intelligently selects introduction + topic-rich sections.
+    
+    Args:
+        text (str): Full document text
+        topics (list): Pre-extracted topic list
+        max_length (int): Maximum characters to return (default 8000)
+    
+    Returns:
+        str: Optimized content for scheduling (introduction + key sections)
+    """
+    if len(text) <= max_length:
+        return text
+    
+    # Strategy: Get introduction (first 20%) + key topic sections + conclusion (last 10%)
+    intro_length = max_length // 3  # Introduction section
+    topic_length = max_length // 2  # Topic content
+    conclusion_length = max_length // 6  # Conclusion
+    
+    sections = []
+    
+    # 1. Add introduction (first section of document)
+    sections.append(text[:intro_length])
+    
+    # 2. Try to find and include topic sections
+    if topics and topic_length > 0:
+        for topic in topics[:3]:  # Top 3 topics
+            # Simple keyword search for topic mentions
+            pattern = re.compile(f".*{re.escape(topic)}.*", re.IGNORECASE | re.MULTILINE)
+            matches = pattern.findall(text)
+            if matches:
+                # Get first match + surrounding context
+                match_idx = text.lower().find(topic.lower())
+                if match_idx > -1:
+                    start = max(0, match_idx - 200)
+                    end = min(len(text), match_idx + 600)
+                    context = text[start:end]
+                    if context not in sections:  # Avoid duplicates
+                        sections.append(context)
+    
+    # 3. Add conclusion (last section of document)
+    sections.append(text[-conclusion_length:])
+    
+    # Combine sections and trim to max_length
+    result = "\n\n[...]\n\n".join(sections)
+    if len(result) > max_length:
+        result = result[:max_length] + "\n\n[Document continues...]"
+    
+    return result
 
 
 def cosine_similarity(a, b):
