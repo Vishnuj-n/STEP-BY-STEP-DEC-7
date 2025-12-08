@@ -25,7 +25,7 @@ except ImportError:
 def load_prompt(prompt_file):
     """Load a prompt configuration from JSON file."""
     prompt_path = os.path.join('prompts', prompt_file)
-    with open(prompt_path, 'r') as f:
+    with open(prompt_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 def extract_text_from_pdf(pdf_file):

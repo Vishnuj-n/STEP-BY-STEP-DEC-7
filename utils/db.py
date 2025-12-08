@@ -363,3 +363,70 @@ class Database:
                 }
             }
         )
+
+    # ============ GAMIFICATION FEATURES ============
+    
+    def update_last_study_date(self, notebook_id):
+        """Update the last study date for streak tracking."""
+        return self.notebooks.update_one(
+            {'_id': ObjectId(notebook_id)},
+            {
+                '$set': {
+                    'progress.last_activity': datetime.now().date().isoformat(),
+                    'updated_at': datetime.now()
+                }
+            }
+        )
+    
+    def get_user_learning_class(self, notebook_id):
+        """Get the user's learning class (Scribe, Orator, Tactician)."""
+        notebook = self.get_notebook(notebook_id)
+        if notebook:
+            return notebook.get('progress', {}).get('learning_class', None)
+        return None
+    
+    def set_user_learning_class(self, notebook_id, learning_class):
+        """Set the user's learning class for point multipliers."""
+        valid_classes = ['Scribe', 'Orator', 'Tactician']
+        if learning_class not in valid_classes:
+            raise ValueError(f"Invalid learning class. Must be one of {valid_classes}")
+        
+        return self.notebooks.update_one(
+            {'_id': ObjectId(notebook_id)},
+            {
+                '$set': {
+                    'progress.learning_class': learning_class,
+                    'updated_at': datetime.now()
+                }
+            }
+        )
+    
+    def calculate_progress_percentage(self, notebook_id):
+        """Calculate overall progress percentage based on completed tasks and schedule."""
+        notebook = self.get_notebook(notebook_id)
+        if not notebook:
+            return 0
+        
+        schedule = notebook.get('schedule', [])
+        if not schedule:
+            return 0
+        
+        total_tasks = sum(len(day.get('tasks', [])) for day in schedule if isinstance(day, dict))
+        if total_tasks == 0:
+            return 0
+        
+        completed_tasks = len(notebook.get('progress', {}).get('completed_tasks', []))
+        return int((completed_tasks / total_tasks) * 100)
+    
+    def get_progress_stage(self, notebook_id):
+        """Get visual representation of progress (🌱 -> 🌿 -> 🌳 -> 🍎)."""
+        percentage = self.calculate_progress_percentage(notebook_id)
+        
+        if percentage < 25:
+            return "🌱 Seedling", percentage
+        elif percentage < 50:
+            return "🌿 Small Plant", percentage
+        elif percentage < 75:
+            return "🌳 Tree", percentage
+        else:
+            return "🍎 Fruit-bearing Tree", percentage

@@ -9,6 +9,7 @@ from utils.db import get_database
 from utils.helpers import extract_text_from_pdf, load_prompt, call_llm
 from utils.sidebar_utils import display_todays_tasks_sidebar
 from utils.text_extraction import split_into_sentences, compute_embeddings
+from utils.gamification import display_gamification_stats, display_learning_class_selector, update_activity_log
 
 # Page configuration
 st.set_page_config(
@@ -254,6 +255,21 @@ def display_notebook_info():
             </ul>
         </div>
         """, unsafe_allow_html=True)
+        
+        # Display Gamification Stats
+        st.divider()
+        display_gamification_stats(st.session_state.current_notebook)
+        st.divider()
+        
+        # Display learning class selector if not set
+        learning_class = db.get_user_learning_class(st.session_state.current_notebook)
+        if not learning_class:
+            st.warning("⚡ You haven't chosen a Learning Class yet! Choose one to start getting point bonuses.")
+            selected_class = display_learning_class_selector()
+            if selected_class:
+                db.set_user_learning_class(st.session_state.current_notebook, selected_class)
+                st.success(f"✅ You are now a {selected_class}!")
+                st.rerun()
         
         # Display basic stats
         col1, col2, col3 = st.columns(3)
