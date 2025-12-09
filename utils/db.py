@@ -287,7 +287,12 @@ class Database:
     # ============ PROGRESS OPERATIONS ============
     
     def mark_task_complete(self, notebook_id, day, task_index, points):
-        """Mark a study scheduler task as complete and add points."""
+        """
+        Mark a study scheduler task as complete and add points.
+        Always applies class bonus before adding points.
+        """
+        from utils.gamification import apply_class_bonus
+        
         task_id = f"{day}_{task_index}"
         notebook = self.get_notebook(notebook_id)
         
@@ -296,11 +301,14 @@ class Database:
             completed_tasks = progress.get('completed_tasks', [])
             
             if task_id not in completed_tasks:
+                # Apply class bonus to points (verifies class data internally)
+                final_points = apply_class_bonus(notebook_id, points, 'scheduler_task')
+                
                 return self.notebooks.update_one(
                     {'_id': ObjectId(notebook_id)},
                     {
                         '$push': {'progress.completed_tasks': task_id},
-                        '$inc': {'progress.total_score': points},
+                        '$inc': {'progress.total_score': final_points},
                         '$set': {
                             'progress.last_activity': datetime.now(),
                             'updated_at': datetime.now()

@@ -5,6 +5,7 @@ Provides common sidebar elements like Today's Tasks.
 
 import streamlit as st
 from utils.db import get_database
+from utils.gamification import get_bonus_info
 from datetime import datetime
 
 
@@ -27,6 +28,11 @@ def display_todays_tasks_sidebar():
         return
     
     st.markdown("### 📋 Today's Tasks")
+    
+    # Check if user has selected a learning class
+    learning_class = db.get_user_learning_class(st.session_state.current_notebook)
+    if not learning_class:
+        st.caption("💡 Choose a Learning Class to get 1.5× bonuses!")
     
     # Calculate the current day based on start_date
     start_date = notebook.get('schedule_start_date')
@@ -77,6 +83,13 @@ def display_todays_tasks_sidebar():
                 task_desc = task.get('description', 'Task')
                 task_points = task.get('points', 10)
                 
+                # Check if bonus would apply
+                will_apply_bonus, final_points, class_name = get_bonus_info(
+                    st.session_state.current_notebook, 
+                    task_points, 
+                    'scheduler_task'
+                )
+                
                 col1, col2 = st.columns([4, 1])
                 
                 with col1:
@@ -84,12 +97,19 @@ def display_todays_tasks_sidebar():
                     if is_completed:
                         st.markdown(f"✅ ~~{task_desc}~~")
                     else:
+                        # Show bonus info in tooltip
+                        help_text = f"Click to mark complete (+{task_points} pts"
+                        if will_apply_bonus:
+                            help_text += f" → {final_points} pts with {class_name} bonus!)"
+                        else:
+                            help_text += ")"
+                        
                         # Use a button instead of checkbox for better control
                         if st.button(
                             f"☐ {task_desc}",
                             key=f"task_sidebar_{st.session_state.current_notebook}_{idx}",
                             use_container_width=True,
-                            help=f"Click to mark complete (+{task_points} pts)"
+                            help=help_text
                         ):
                             db.mark_task_complete(
                                 st.session_state.current_notebook,
@@ -100,7 +120,10 @@ def display_todays_tasks_sidebar():
                             st.rerun()
                 
                 with col2:
-                    st.caption(f"{task_points}pts")
+                    if will_apply_bonus and not is_completed:
+                        st.caption(f"~~{task_points}~~ {final_points}pts")
+                    else:
+                        st.caption(f"{task_points}pts")
         
         # Progress summary
         completed_count = sum(1 for idx, _ in enumerate(tasks) 

@@ -14,7 +14,7 @@ class LearningClass:
     SCRIBE = {
         'name': '📖 The Scribe',
         'description': 'Master of written knowledge. Excels at Summaries & Flashcards.',
-        'multiplier_activities': ['flashcards', 'summaries'],
+        'multiplier_activities': ['flashcards', 'summaries', 'scheduler_task'],
         'multiplier': 1.5,
         'emoji': '📖'
     }
@@ -184,6 +184,88 @@ def display_gamification_stats(notebook_id):
         st.metric("Knowledge Garden", stage, delta=f"{percentage}% complete")
     
     return streak_count, learning_class, percentage
+
+
+def apply_class_bonus(notebook_id, base_points, activity_type='scheduler_task'):
+    """
+    Centralized function to apply 1.5x class bonus for task completion.
+    Always verifies class data exists before applying bonus.
+    
+    Args:
+        notebook_id (str): Notebook ID
+        base_points (int): Base points before multiplier
+        activity_type (str): Type of activity ('scheduler_task', 'flashcards', 'quiz', 'talk_to_duck', 'summaries')
+    
+    Returns:
+        int: Final points after bonus applied (if applicable)
+    """
+    db = get_database()
+    
+    # Load and verify class data exists
+    learning_class = db.get_user_learning_class(notebook_id)
+    
+    # If no class selected, return base points (no bonus)
+    if not learning_class:
+        return base_points
+    
+    # Find the class configuration
+    class_obj = None
+    if learning_class == 'Scribe':
+        class_obj = LearningClass.SCRIBE
+    elif learning_class == 'Orator':
+        class_obj = LearningClass.ORATOR
+    elif learning_class == 'Tactician':
+        class_obj = LearningClass.TACTICIAN
+    
+    # If class not found (shouldn't happen), return base points
+    if not class_obj:
+        return base_points
+    
+    # Check if this activity type gets the multiplier
+    if activity_type in class_obj['multiplier_activities']:
+        final_points = int(base_points * class_obj['multiplier'])
+        return final_points
+    
+    # No bonus for this activity type
+    return base_points
+
+
+def get_bonus_info(notebook_id, base_points, activity_type='scheduler_task'):
+    """
+    Get information about whether a bonus would be applied for a task.
+    
+    Args:
+        notebook_id (str): Notebook ID
+        base_points (int): Base points before multiplier
+        activity_type (str): Type of activity
+    
+    Returns:
+        tuple: (will_apply_bonus: bool, final_points: int, class_name: str or None)
+    """
+    db = get_database()
+    learning_class = db.get_user_learning_class(notebook_id)
+    
+    if not learning_class:
+        return False, base_points, None
+    
+    # Find the class configuration
+    class_obj = None
+    if learning_class == 'Scribe':
+        class_obj = LearningClass.SCRIBE
+    elif learning_class == 'Orator':
+        class_obj = LearningClass.ORATOR
+    elif learning_class == 'Tactician':
+        class_obj = LearningClass.TACTICIAN
+    
+    if not class_obj:
+        return False, base_points, None
+    
+    # Check if this activity type gets the multiplier
+    if activity_type in class_obj['multiplier_activities']:
+        final_points = int(base_points * class_obj['multiplier'])
+        return True, final_points, learning_class
+    
+    return False, base_points, learning_class
 
 
 def update_activity_log(notebook_id, activity_type, points_earned):

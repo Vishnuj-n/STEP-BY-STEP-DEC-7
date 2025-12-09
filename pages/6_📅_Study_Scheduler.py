@@ -7,6 +7,7 @@ from utils.db import get_database
 from utils.helpers import load_prompt, call_llm, parse_json_response
 from utils.text_extraction import get_optimal_content_for_scheduling
 from utils.sidebar_utils import show_sidebar_on_all_pages
+from utils.gamification import get_bonus_info
 
 st.set_page_config(page_title="Study Scheduler", page_icon="📅", layout="wide")
 
@@ -27,6 +28,11 @@ else:
     if notebook:
         filename = notebook.get('filename', 'Untitled Notebook')
         st.header(f"📓 {filename}")
+        
+        # Check if user has selected a learning class
+        learning_class = db.get_user_learning_class(st.session_state.current_notebook)
+        if not learning_class:
+            st.info("💡 Tip: Choose a Learning Class from the home page to get 1.5× point bonuses!")
         
         st.markdown("""
         Create a personalized study schedule based on your target completion date.
@@ -220,6 +226,14 @@ Break the content into manageable daily tasks. Return the result as a JSON array
                                 if isinstance(task, dict):
                                     task_id = f"{day}_{idx}"
                                     is_completed = task_id in completed_tasks
+                                    task_points = task.get('points', 10)
+                                    
+                                    # Check if bonus would apply
+                                    will_apply_bonus, final_points, class_name = get_bonus_info(
+                                        st.session_state.current_notebook, 
+                                        task_points, 
+                                        'scheduler_task'
+                                    )
                                     
                                     col1, col2, col3 = st.columns([3, 1, 1])
                                     
@@ -230,16 +244,23 @@ Break the content into manageable daily tasks. Return the result as a JSON array
                                             st.markdown(f"📌 {task.get('description', 'Task')}")
                                     
                                     with col2:
-                                        st.markdown(f"**{task.get('points', 10)} pts**")
+                                        if will_apply_bonus and not is_completed:
+                                            st.markdown(f"**~~{task_points}~~ {final_points} pts** ⭐")
+                                        else:
+                                            st.markdown(f"**{task_points} pts**")
                                     
                                     with col3:
                                         if not is_completed:
-                                            if st.button("✓", key=f"complete_{day}_{idx}"):
+                                            button_label = "✓"
+                                            if will_apply_bonus:
+                                                button_label = "✓ ⭐"
+                                            
+                                            if st.button(button_label, key=f"complete_{day}_{idx}"):
                                                 db.mark_task_complete(
                                                     st.session_state.current_notebook,
                                                     day,
                                                     idx,
-                                                    task.get('points', 10)
+                                                    task_points
                                                 )
                                                 
                                                 # Check if this was the last task (total_incomplete - 1 because this one was just completed)
