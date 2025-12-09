@@ -227,21 +227,35 @@ Break the content into manageable daily tasks. Return the result as a JSON array
                                     task_id = f"{day}_{idx}"
                                     is_completed = task_id in completed_tasks
                                     task_points = task.get('points', 10)
+                                    task_desc = task.get('description', 'Task')
                                     
-                                    # Check if bonus would apply
+                                    # Detect activity type from task description
+                                    activity_type = 'scheduler_task'  # Default
+                                    task_desc_lower = task_desc.lower()
+                                    
+                                    if 'talk to duck' in task_desc_lower or 'talk to doc' in task_desc_lower or 'socratic' in task_desc_lower or 'discussion' in task_desc_lower:
+                                        activity_type = 'talk_to_duck'
+                                    elif 'quiz' in task_desc_lower or 'test' in task_desc_lower or 'exam' in task_desc_lower:
+                                        activity_type = 'quiz'
+                                    elif 'flashcard' in task_desc_lower or 'flash card' in task_desc_lower:
+                                        activity_type = 'flashcards'
+                                    elif 'summary' in task_desc_lower or 'summarize' in task_desc_lower:
+                                        activity_type = 'summaries'
+                                    
+                                    # Check if bonus would apply with detected activity type
                                     will_apply_bonus, final_points, class_name = get_bonus_info(
                                         st.session_state.current_notebook, 
                                         task_points, 
-                                        'scheduler_task'
+                                        activity_type
                                     )
                                     
                                     col1, col2, col3 = st.columns([3, 1, 1])
                                     
                                     with col1:
                                         if is_completed:
-                                            st.markdown(f"✅ ~~{task.get('description', 'Task')}~~")
+                                            st.markdown(f"✅ ~~{task_desc}~~")
                                         else:
-                                            st.markdown(f"📌 {task.get('description', 'Task')}")
+                                            st.markdown(f"📌 {task_desc}")
                                     
                                     with col2:
                                         if will_apply_bonus and not is_completed:

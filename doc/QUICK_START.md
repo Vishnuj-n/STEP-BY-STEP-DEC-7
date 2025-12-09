@@ -67,7 +67,7 @@ onnx/model_int8.onnx
 ## 🎓 Best Practices
 1. Upload well-structured PDFs for best extraction.  
 2. Generate schedule early so points/achievements track instantly.  
-3. Use topic-aware flashcards/quiz before Talk to Doc for focused practice.  
+3. Use topic-aware flashcards/quiz before Talk to Duck for focused practice.  
 4. Regenerate mnemonics if a style doesn’t fit—song/phrase/story options exist.  
 5. Clear Streamlit cache if prompts/models change (`streamlit cache clear`).  
 

@@ -290,6 +290,7 @@ class Database:
         """
         Mark a study scheduler task as complete and add points.
         Always applies class bonus before adding points.
+        Detects task type from description to apply correct bonus.
         """
         from utils.gamification import apply_class_bonus
         
@@ -301,8 +302,31 @@ class Database:
             completed_tasks = progress.get('completed_tasks', [])
             
             if task_id not in completed_tasks:
+                # Detect activity type from task description
+                activity_type = 'scheduler_task'  # Default
+                
+                # Get the task description to identify the activity type
+                schedule = notebook.get('schedule', [])
+                task_description = ""
+                for day_data in schedule:
+                    if isinstance(day_data, dict) and day_data.get('day') == day:
+                        tasks = day_data.get('tasks', [])
+                        if task_index < len(tasks) and isinstance(tasks[task_index], dict):
+                            task_description = tasks[task_index].get('description', '').lower()
+                            break
+                
+                # Match task description to activity type
+                if 'talk to duck' in task_description or 'talk to doc' in task_description or 'socratic' in task_description or 'discussion' in task_description:
+                    activity_type = 'talk_to_duck'
+                elif 'quiz' in task_description or 'test' in task_description or 'exam' in task_description:
+                    activity_type = 'quiz'
+                elif 'flashcard' in task_description or 'flash card' in task_description:
+                    activity_type = 'flashcards'
+                elif 'summary' in task_description or 'summarize' in task_description:
+                    activity_type = 'summaries'
+                
                 # Apply class bonus to points (verifies class data internally)
-                final_points = apply_class_bonus(notebook_id, points, 'scheduler_task')
+                final_points = apply_class_bonus(notebook_id, points, activity_type)
                 
                 return self.notebooks.update_one(
                     {'_id': ObjectId(notebook_id)},
