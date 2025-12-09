@@ -11,7 +11,7 @@ Points are ONLY awarded when completing tasks from the **Study Scheduler** (both
 When you click to complete a task, the code reads the task's description text.
 
 **Example Task Descriptions:**
-- "Complete Talk to Duck session on Photosynthesis"
+- "Complete Talk to Doc session on Photosynthesis"
 - "Take a quiz on Chemical Reactions"  
 - "Review flashcards for Chapter 5"
 - "Write a summary of the introduction"
@@ -41,9 +41,9 @@ Once the activity type is detected, the code checks the user's Learning Class an
 ```
 1. User clicks "✓" on a task
    ↓
-2. System reads task description: "Complete Talk to Duck session"
+2. System reads task description: "Complete Talk to Doc session"
    ↓
-3. Detects keywords: "talk to duck" found
+3. Detects keywords: "talk to doc" found
    ↓
 4. Sets activity_type = 'talk_to_duck'
    ↓
@@ -80,7 +80,7 @@ for day_data in schedule:
 # Match task description to activity type
 activity_type = 'scheduler_task'  # Default
 
-if 'talk to duck' in task_description or 'talk to doc' in task_description:
+if 'talk to doc' in task_description or 'talk to duck' in task_description:
     activity_type = 'talk_to_duck'
 elif 'quiz' in task_description or 'test' in task_description:
     activity_type = 'quiz'
@@ -104,7 +104,7 @@ task_desc_lower = task_desc.lower()
 # Detect activity type
 activity_type = 'scheduler_task'
 
-if 'talk to duck' in task_desc_lower:
+if 'talk to doc' in task_desc_lower or 'talk to duck' in task_desc_lower:
     activity_type = 'talk_to_duck'
 elif 'quiz' in task_desc_lower:
     activity_type = 'quiz'
@@ -124,14 +124,14 @@ will_apply_bonus, final_points, class_name = get_bonus_info(
 
 ## 🎮 Examples
 
-### Example 1: Orator Completes "Talk to Duck" Task
+### Example 1: Orator Completes "Talk to Doc" Task
 
-**Task:** "Complete Talk to Duck session on Cellular Biology"
+**Task:** "Complete Talk to Doc session on Cellular Biology"
 **Base Points:** 10
 
 **Detection Flow:**
-1. Description: "complete **talk to duck** session on cellular biology"
-2. Keyword match: "talk to duck" → `activity_type = 'talk_to_duck'`
+1. Description: "complete **talk to doc** session on cellular biology"
+2. Keyword match: "talk to doc" → `activity_type = 'talk_to_duck'`
 3. User's class: Orator
 4. Orator bonus activities: `['talk_to_duck']` ✓
 5. **Bonus applies!** 10 × 1.5 = **15 points** ⭐

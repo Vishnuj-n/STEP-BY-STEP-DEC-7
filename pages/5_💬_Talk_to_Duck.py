@@ -1,5 +1,5 @@
 """
-Duck Page - Talk to the Duck (Socratic Tutor)
+Doc Page - Talk to the Doc (Socratic Tutor)
 Uses Groq AI for Socratic questioning and grading with RAG context.
 """
 import streamlit as st
@@ -119,7 +119,7 @@ def grade_student_answer(question, answer, topic, context_text):
 
 # --- Main UI ---
 
-st.title("💬 Talk to Duck - Socratic Tutor")
+st.title("💬 Talk to Doc - Socratic Tutor")
 
 if 'current_notebook' not in st.session_state:
     st.warning("⚠️ No notebook selected. Please upload a PDF from the home page.")
