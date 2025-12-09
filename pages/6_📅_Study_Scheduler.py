@@ -172,18 +172,17 @@ else:
                                     # Load scheduler prompt
                                     prompt_config = load_prompt('scheduler_prompt.json')
                                     
-                                    # Create new prompt for rescheduling
-                                    reschedule_prompt = f"""Create a new {new_days}-day study plan using ONLY these remaining topics:
+                                    # Create context text for rescheduling
+                                    reschedule_context = f"""Remaining topics to cover:
 
 {topics_text}
 
-Break the content into manageable daily tasks. Return the result as a JSON array of objects, where each object represents a day and contains a 'day' number and a list of 'tasks'. Each task should have a 'description' and 'points' (e.g., 10, 20).
-"""
+Focus the study plan on these remaining topics only. Follow the same task format with emojis and app feature mentions."""
                                     
-                                    # Generate new schedule
+                                    # Generate new schedule using the full prompt template
                                     response = call_llm(
                                         prompt_config, 
-                                        reschedule_prompt,
+                                        reschedule_context,
                                         days=new_days
                                     )
                                     
