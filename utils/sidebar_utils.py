@@ -87,16 +87,15 @@ def display_todays_tasks_sidebar():
                 activity_type = 'scheduler_task'  # Default
                 task_desc_lower = task_desc.lower()
                 
-                if 'talk to duck' in task_desc_lower or 'talk to doc' in task_desc_lower or 'socratic' in task_desc_lower or 'discussion' in task_desc_lower:
-                    activity_type = 'talk_to_duck'
-                elif 'quiz' in task_desc_lower or 'test' in task_desc_lower or 'exam' in task_desc_lower:
-                    activity_type = 'quiz'
-                elif 'flashcard' in task_desc_lower or 'flash card' in task_desc_lower:
-                    activity_type = 'flashcards'
-                elif 'summary' in task_desc_lower or 'summarize' in task_desc_lower:
-                    activity_type = 'summaries'
-                
-                # Check if bonus would apply with the detected activity type
+            import re
+            if 'talk to duck' in task_desc_lower or 'talk to doc' in task_desc_lower or 'socratic' in task_desc_lower or 'discussion' in task_desc_lower:
+                activity_type = 'talk_to_duck'
+            elif 'flashcard' in task_desc_lower or 'flash card' in task_desc_lower:
+                activity_type = 'flashcards'
+            elif 'summary' in task_desc_lower or 'summarize' in task_desc_lower:
+                activity_type = 'summaries'
+            elif re.search(r'\b(quiz|test|exam)\b', task_desc_lower):
+                activity_type = 'quiz'                # Check if bonus would apply with the detected activity type
                 will_apply_bonus, final_points, class_name = get_bonus_info(
                     st.session_state.current_notebook, 
                     task_points, 

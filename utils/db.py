@@ -315,15 +315,16 @@ class Database:
                             task_description = tasks[task_index].get('description', '').lower()
                             break
                 
-                # Match task description to activity type
+                # Match task description to activity type (using word boundaries for exam/test)
+                import re
                 if 'talk to duck' in task_description or 'talk to doc' in task_description or 'socratic' in task_description or 'discussion' in task_description:
                     activity_type = 'talk_to_duck'
-                elif 'quiz' in task_description or 'test' in task_description or 'exam' in task_description:
-                    activity_type = 'quiz'
                 elif 'flashcard' in task_description or 'flash card' in task_description:
                     activity_type = 'flashcards'
                 elif 'summary' in task_description or 'summarize' in task_description:
                     activity_type = 'summaries'
+                elif re.search(r'\b(quiz|test|exam)\b', task_description):
+                    activity_type = 'quiz'
                 
                 # Apply class bonus to points (verifies class data internally)
                 final_points = apply_class_bonus(notebook_id, points, activity_type)
