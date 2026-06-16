@@ -3,12 +3,12 @@
 An interactive Streamlit app that turns PDFs into full learning notebooks with AI summaries, topic-aware flashcards, quizzes, study plans, mnemonics, progress tracking, and a Socratic tutor.
 
 ## 🌟 Features
-- **PDF → Notebook pipeline:** upload once, store PDF/text/summary/topics in MongoDB
+- **PDF → Notebook pipeline:** Upload once, store PDF/text/summary/topics in MongoDB
 - **AI Summary:** Groq-hosted `openai/gpt-oss-120b` (default) over full document text
 - **Topic Extraction:** AI prompt + heuristic fallback; topic-aware text slicing via local ONNX embeddings
-- **Learning tools:** flashcards, quizzes (structured output), study scheduler, progress tracker, memory aids (acronym/song/phrase/story)
-- **RAG-style chat:** Socratic “Talk to Doc” with topic-focused context
-- **Gamification:** task points, achievements, and sidebar “today’s tasks”
+- **Learning tools:** Flashcards, quizzes (structured output), study scheduler, progress tracker, memory aids (acronym/song/phrase/story)
+- **RAG-style chat:** Socratic "Talk to Duck" with topic-focused context
+- **Gamification:** Task points, achievements, and sidebar "today's tasks"
 
 ## 🚀 Getting Started
 
@@ -19,35 +19,38 @@ An interactive Streamlit app that turns PDFs into full learning notebooks with A
 - ONNX embedding file at `onnx/model_int8.onnx` (nomic-embed-text-v1.5, int8)
 
 ### Installation & Run
-```powershell
-cd "c:\Users\vishn\PROJECT\STEP BY STEP DEC 7"
-pip install -r requirements.txt
-```
 
-Create `.env`:
-```
-GROQ_API_KEY=your_api_key
-GROQ_MODELS=openai/gpt-oss-120b    # optional, defaults to this
-GROQ_MODEL=openai/gpt-oss-120b     # used on Talk to Duck page
-MONGODB_URI=mongodb://127.0.0.1:27017/mind_palace
-```
+1. **Install Dependencies:**
+   ```powershell
+   pip install -r requirements.txt
+   ```
 
-Run:
-```powershell
-streamlit run app.py
-```
-Open `http://localhost:8501`.
+2. **Configure Environment:**
+   Create a `.env` file in the root directory:
+   ```env
+   GROQ_API_KEY=your_api_key
+   GROQ_MODELS=openai/gpt-oss-120b    # optional, defaults to this
+   GROQ_MODEL=openai/gpt-oss-120b     # used on Talk to Duck page
+   MONGODB_URI=mongodb://127.0.0.1:27017/mind_palace
+   ```
 
-Download the ONNX embedding model (one-time setup):
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\download_nomic_model.ps1 -InstallDeps
-```
+3. **Download the ONNX embedding model (One-time setup):**
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\scripts\download_nomic_model.ps1 -InstallDeps
+   ```
+
+4. **Run the Application:**
+   ```powershell
+   streamlit run app.py
+   ```
+   Open `http://localhost:8501` in your browser.
 
 ## 📁 Project Structure
-```
-STEP BY STEP DEC 7/
+
+```text
+Mind Palace/
 ├── app.py                      # Home: upload, notebook list, sidebar tasks
-├── pages/
+├── pages/                      # Streamlit application pages
 │   ├── 1_📄_Summary.py         # Summary + topics + stats
 │   ├── 2_📖_PDF_Viewer.py      # Inline viewer + download
 │   ├── 3_🎴_Flashcards.py      # Topic-aware generation + review
@@ -56,18 +59,25 @@ STEP BY STEP DEC 7/
 │   ├── 6_📅_Study_Scheduler.py # Day-by-day plan + task completion
 │   ├── 7_🎯_Progress_Tracker.py# Points, achievements, completion %
 │   └── 8_🧠_Acronym_Generator.py# Mnemonics (acronym/song/phrase/story/all)
-├── utils/
+├── docs/                       # Project documentation
+│   ├── ARCHITECTURE.md         # Architecture documentation
+│   ├── CHANGES_SUMMARY.md      # Summary of previous changes
+│   ├── HUGGINGFACE_INTEGRATION.md # HF integration details
+│   ├── QUICK_START.md          # Additional startup guide
+│   └── SUMMARY_ANALYSIS.md     # Further architectural analysis
+├── utils/                      # Core backend utilities
 │   ├── db.py                   # Mongo CRUD, embedded flashcards/quizzes/acronyms/progress
 │   ├── helpers.py              # Groq client, PDF text extraction, prompt loader
 │   ├── text_extraction.py      # Topic-aware extraction via ONNX + fallback
 │   ├── onnx_embedder.py        # Nomic embed ONNX wrapper
 │   └── sidebar_utils.py        # Shared sidebar renderer
 ├── prompts/                    # JSON prompt configs (summary, topics, flashcards, scheduler, quiz, mnemonics)
-├── scripts/
+├── scripts/                    # Utility scripts
 │   └── download_nomic_model.ps1 # One-command Nomic ONNX model downloader
-├── onnx/model_int8.onnx        # Local embedding model (int8)
-├── requirements.txt
-└── .env                         # Runtime config (Groq + MongoDB)
+├── tests/                      # Test cases
+│   └── test_speed.py           # Benchmark script
+├── requirements.txt            # Python dependencies
+└── .env                        # Runtime config (Groq + MongoDB)
 ```
 
 ## 🎯 Usage Workflow
@@ -75,7 +85,7 @@ STEP BY STEP DEC 7/
 2. Review **Summary**, then **PDF Viewer** for the source.
 3. Generate **Flashcards** or **Quiz** per topic (uses topic-aware text extraction).
 4. Build a **Study Schedule** and mark tasks done; **Progress Tracker** updates points/achievements.
-5. Use **Memory Aid Generator** for acronyms/songs/phrases/stories or **Talk to Doc** for Socratic Q&A.
+5. Use **Memory Aid Generator** for acronyms/songs/phrases/stories or **Talk to Duck** for Socratic Q&A.
 
 ## 🔧 Technical Stack
 - **Frontend:** Streamlit multipage
@@ -91,7 +101,7 @@ Prompts live in `prompts/*.json` with `system_instruction` + `user_instruction`.
 ## 🎮 Gamification
 - Points: schedule tasks (10–20 pts each) + quiz scores added to total.
 - Achievements: 🌱50, 🔥100, ⭐250, 🎓500 points; ✅10 tasks; 🎯50% completion; 💯100% completion.
-- Sidebar shows “today’s tasks” when a notebook is selected.
+- Sidebar shows "today's tasks" when a notebook is selected.
 
 ## 🐛 Troubleshooting
 - **MongoDB:** ensure `mongod` is running; check `MONGODB_URI`.
