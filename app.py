@@ -12,7 +12,7 @@ from utils.text_extraction import split_into_sentences, compute_embeddings
 
 # Page configuration
 st.set_page_config(
-    page_title="Mind Palace - Home",
+    page_title="Study AI - Home",
     page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
