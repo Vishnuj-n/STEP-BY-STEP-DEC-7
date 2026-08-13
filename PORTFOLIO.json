@@ -1,0 +1,23 @@
+{
+  "title": "Mind Palace",
+  "summary": "AI-powered learning platform that transforms PDFs into interactive study notebooks with AI summaries, topic-aware flashcards, quizzes, study plans, mnemonics, and RAG-style Socratic tutoring.",
+  "category": "Educational Technology",
+  "date": "2025-12",
+  "tier": 2,
+  "priority": 85,
+  "techStack": [
+    "Python",
+    "Streamlit",
+    "MongoDB",
+    "Groq",
+    "ONNX Runtime",
+    "PyPDF2",
+    "Pydantic"
+  ],
+  "highlights": [
+    "PDF to notebook pipeline storing extracted text, summaries, and topics in MongoDB.",
+    "Local int8 ONNX embeddings (nomic-embed-text-v1.5) for topic-aware text slicing.",
+    "Integrated Socratic tutor ('Talk to Doc') utilizing RAG-style topic context.",
+    "Gamified learning with task scheduling, quiz scoring, and achievement tracking."
+  ]
+}
